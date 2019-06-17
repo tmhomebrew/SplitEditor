@@ -163,7 +163,7 @@ namespace BLINDED_AM_ME{
             leftSideObj.GetComponent<MeshCollider>().sharedMesh = left_HalfMesh;  //Test this....
             leftSideObj.GetComponent<MeshCollider>().convex = true; //Test this....
 
-            GameObject rightSideObj = new GameObject(victim.name + ".. R.Side", typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
+            GameObject rightSideObj = new GameObject(victim.name + "..l R.Side", typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
 			rightSideObj.transform.position = victim.transform.position;
 			rightSideObj.transform.rotation = victim.transform.rotation;
 			rightSideObj.GetComponent<MeshFilter>().mesh = right_HalfMesh;
