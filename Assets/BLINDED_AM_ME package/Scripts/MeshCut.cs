@@ -149,25 +149,28 @@ namespace BLINDED_AM_ME{
 
 			// assign the game objects
 
-			victim.name = "left side";
+			//victim.name = "left side";
 			//victim.GetComponent<MeshFilter>().mesh = left_HalfMesh;
             
 
 			//GameObject leftSideObj = victim;
 
             //made this myself....................................................
-            GameObject leftSideObj = new GameObject(victim.name, typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
+            GameObject leftSideObj = new GameObject(victim.name + ".. L.Side", typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
             leftSideObj.transform.position = victim.transform.position;
             leftSideObj.transform.rotation = victim.transform.rotation;
             leftSideObj.GetComponent<MeshFilter>().mesh = left_HalfMesh;
             leftSideObj.GetComponent<MeshCollider>().sharedMesh = left_HalfMesh;  //Test this....
+            leftSideObj.GetComponent<MeshCollider>().convex = true; //Test this....
 
-            GameObject rightSideObj = new GameObject("right side", typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
+            GameObject rightSideObj = new GameObject(victim.name + ".. R.Side", typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
 			rightSideObj.transform.position = victim.transform.position;
 			rightSideObj.transform.rotation = victim.transform.rotation;
 			rightSideObj.GetComponent<MeshFilter>().mesh = right_HalfMesh;
-		
-			if(victim.transform.parent != null){
+            rightSideObj.GetComponent<MeshCollider>().sharedMesh = right_HalfMesh;  //Test this....
+            rightSideObj.GetComponent<MeshCollider>().convex = true; //Test this....
+
+            if (victim.transform.parent != null){
 				rightSideObj.transform.parent = victim.transform.parent;
 			}
 
