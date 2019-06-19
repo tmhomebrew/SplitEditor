@@ -24,14 +24,14 @@ public class ExampleUseof_MeshCut : MonoBehaviour {
 
 		if(Input.GetMouseButtonDown(0))
         {
-            WorkingCutter(); //<----Works, original
+            //WorkingCutter(); //<----Works, original
 
-            //RaycastHit hit2;
-            //if (Physics.Raycast(transform.position, transform.forward, out hit2))
-            //{
-            //    SplitterMethoed(hit2.transform.gameObject);
-            ////    GameObject victim = hit.collider.gameObject;
-            //}
+            RaycastHit hit2;
+            if (Physics.Raycast(transform.position, transform.forward, out hit2))
+            {
+                SplitterMethoed(hit2.transform.gameObject);
+                //    GameObject victim = hit.collider.gameObject;
+            }
 
 
             //    //GameObject[] pieces = BLINDED_AM_ME.MeshCut.Cut(victim, transform.position, transform.right, capMaterial);
@@ -57,7 +57,7 @@ public class ExampleUseof_MeshCut : MonoBehaviour {
             //    Destroy(hit.collider.gameObject);
             //}
         }
-	}
+    }
 
     void WorkingCutter()
     {
@@ -111,78 +111,132 @@ public class ExampleUseof_MeshCut : MonoBehaviour {
     /* Metode, som kan lave et/flere Cut(s), ud fra en placering..
      * 
      */
-    public GameObject startPoint, endPoint; //Set in Inspector..
+    public Vector3 startPoint, endPoint; //Set in Inspector..
     Vector3 retningsVektor; //endPoint.transform.position - startPoint.transform.position..
     float lineOfCutLength; //Giver en længde af den linje, som jeg kan placere mine cuts på .... retningsVector.Normalized..
-    //float _numbOfCuts; //Hvor mange GameObjects af "Cut" der skal være..
+    public int _numbOfCutPos; //Hvor mange GameObjects af "Cut" der skal være..
     float _cutObjMellemrum; //Længden af lineOfCut, baseret på hvor mange cuts der skal være..
-    List<GameObject> numbOfCuts; //Liste med antallet af "Cut"-objekter
+    public List<GameObject> numbOfCuts; //Liste med antallet af "Cut"-objekter
     List<GameObject> piecesToBeDeleted;
-    List<GameObject[]> pieceList2;// = new List<GameObject[]>();
+    List<GameObject> pieceList2;// = new List<GameObject[]>();
+    bool _secondObj;
 
     private void Awake()
     {
-        pieceList2 = new List<GameObject[]>();
+        pieceList2 = new List<GameObject>();
         piecesToBeDeleted = new List<GameObject>();
         numbOfCuts = new List<GameObject>();
+
+        _numbOfCutPos = 3;
     }
 
     void SplitterMethoed(GameObject targetCollider) //INPROGRESS!!!!!!!!!!!
     {
         //GameObject tempObj = targetCollider;
+        piecesToBeDeleted.Add(targetCollider);
 
-        CutPosition(1, startPoint, endPoint);
+        startPoint = new Vector3(
+            targetCollider.GetComponent<Renderer>().bounds.min.x * 1, 
+            targetCollider.GetComponent<Renderer>().bounds.min.y * 1, 
+            targetCollider.GetComponent<Renderer>().bounds.min.z * 1);
+        endPoint = new Vector3(
+            targetCollider.GetComponent<Renderer>().bounds.max.x * 1,
+            targetCollider.GetComponent<Renderer>().bounds.max.y * 1,
+            targetCollider.GetComponent<Renderer>().bounds.max.z * 1);
 
-        for (int i = 0; i < numbOfCuts.Count; i++)
+        CutPosition(_numbOfCutPos, startPoint, endPoint);
+
+        for (int i = 1; i < numbOfCuts.Count; i++)
         {
-            piecesToBeDeleted.Add(targetCollider);
-            pieceList2.Clear();
-            GameObject[] pieces = BLINDED_AM_ME.MeshCut.Cut(piecesToBeDeleted[0], numbOfCuts[i].transform.position, transform.right, capMaterial);
-            pieceList2.Add(pieces);
-
-            foreach (GameObject[] GoA in pieceList2)
+            if (piecesToBeDeleted.Count != 1)
             {
-                for (int j = 0; j < GoA.Length; j++)
+                print("Too many Gamobjects on list.: piecesToBeDeleted<>..");
+                break;
+            }
+            //piecesToBeDeleted.Add(targetCollider);
+            pieceList2.Clear();
+            GameObject[] pieces = BLINDED_AM_ME.MeshCut.Cut(piecesToBeDeleted[0], numbOfCuts[i-1].transform.position, transform.right, capMaterial);
+            _secondObj = false;
+            foreach (GameObject go in pieces)
+            {
+            //    if (i == numbOfCuts.Count - 1 && go == pieces[1])
+            //    {
+            //        continue;
+            //    }
+            //    else
+            //    {
+                    pieceList2.Add(go);
+            //    }
+            }
+
+            foreach (GameObject GoA in pieceList2)
+            {
+                //for (int j = 0; j < GoA.Length; j++)
+                //{
+                if (!GoA.GetComponent<Rigidbody>())
                 {
-                    if (!GoA[j].GetComponent<Rigidbody>())
+                    GoA.AddComponent<Rigidbody>();
+                }
+                if (_secondObj)
+                {
+                    piecesToBeDeleted.Add(GoA);
+                    if (i == numbOfCuts.Count)         // <----- Something is wrong here.... Spawns an empty object when it cuts only 1...
                     {
-                        GoA[j].AddComponent<Rigidbody>();
-                    }
-                    if (pieceList2.IndexOf(GoA) == pieceList2.Count && j == GoA.Length - 1)
-                    {
-                        piecesToBeDeleted.Add(GoA[j]);
-                    }
-                    if (_destroyMadePieces)
-                    {
-                        Destroy(pieces[j], _destroyTimer);
+                        print(piecesToBeDeleted.Count + " number of items on list Before Trim and deletion: " + piecesToBeDeleted);
+                        Destroy(piecesToBeDeleted[1]);
+                        piecesToBeDeleted.Remove(piecesToBeDeleted[1]);
+                        print(piecesToBeDeleted.Count + " number of items on list Before Trim: " + piecesToBeDeleted);
+                        piecesToBeDeleted.TrimExcess();
+                        print(piecesToBeDeleted.Count + " number of items on list After Trim: " + piecesToBeDeleted);
                     }
                 }
+                if (_destroyMadePieces)
+                {
+                    Destroy(GoA, _destroyTimer);
+                }
+                //}
+                _secondObj = true;
             }
-            print(piecesToBeDeleted.Count + " number of items on list Before Trim and deletion: " + piecesToBeDeleted);
-            Destroy(piecesToBeDeleted[0]);
-            print(piecesToBeDeleted.Count + " number of items on list Before Trim: " + piecesToBeDeleted);
-            piecesToBeDeleted.TrimExcess();
-            print(piecesToBeDeleted.Count + " number of items on list After Trim: " + piecesToBeDeleted);
+
+            DeletePieces();
+
+            //foreach (GameObject go in numbOfCuts)
+            //{
+            //    //Destroy(go);
+            //}
         }
     }
 
-    void CutPosition(int _numbOfCuts, GameObject retningsVektor_Start, GameObject retningsVektor_Slut)
+    void DeletePieces()
+    {
+        print(piecesToBeDeleted.Count + " number of items on list Before Trim and deletion: " + piecesToBeDeleted);
+        Destroy(piecesToBeDeleted[0]);
+        piecesToBeDeleted.Remove(piecesToBeDeleted[0]);
+        print(piecesToBeDeleted.Count + " number of items on list Before Trim: " + piecesToBeDeleted);
+        piecesToBeDeleted.TrimExcess();
+        print(piecesToBeDeleted.Count + " number of items on list After Trim: " + piecesToBeDeleted);
+    }
+
+    void CutPosition(int _numbOfCuts, Vector3 retningsVektor_Start, Vector3 retningsVektor_Slut)
     {
         numbOfCuts.Clear();
 
-        retningsVektor = retningsVektor_Slut.transform.position - retningsVektor_Start.transform.position; //Retningsvektor
+        retningsVektor = retningsVektor_Slut - retningsVektor_Start; //Retningsvektor
         lineOfCutLength = retningsVektor.magnitude; //længden af Retningsvektoren
 
         _cutObjMellemrum = lineOfCutLength / _numbOfCuts; // +1 for at dele retningsvektoren op i lige store dele..
-
-        for (int i = 1; i < _numbOfCuts; i++)
+        if (_numbOfCuts == 1)
+        {
+            _numbOfCuts++;
+        }
+        for (int i = 1; i <= _numbOfCuts; i++)
         {
             GameObject newCut = new GameObject("newCut_Numb_" + i); //Nyt Gameobject for "Cut()"..
             
             float x1, y1, z1;
-            x1 = retningsVektor_Start.transform.position.x + (((_cutObjMellemrum * i) / lineOfCutLength) * retningsVektor.x);
-            y1 = retningsVektor_Start.transform.position.y + (((_cutObjMellemrum * i) / lineOfCutLength) * retningsVektor.y);
-            z1 = retningsVektor_Start.transform.position.z + (((_cutObjMellemrum * i) / lineOfCutLength) * retningsVektor.z);
+            x1 = retningsVektor_Start.x + (((_cutObjMellemrum * i) / lineOfCutLength) * retningsVektor.x);
+            y1 = retningsVektor_Start.y + (((_cutObjMellemrum * i) / lineOfCutLength) * retningsVektor.y);
+            z1 = retningsVektor_Start.z + (((_cutObjMellemrum * i) / lineOfCutLength) * retningsVektor.z);
             Vector3 tempPos = new Vector3(x1, y1, z1);
 
             newCut.transform.position = tempPos;
