@@ -159,13 +159,15 @@ namespace BLINDED_AM_ME{
             GameObject leftSideObj = new GameObject(victim.name + ".. L.Side", typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
             leftSideObj.transform.position = victim.transform.position;
             leftSideObj.transform.rotation = victim.transform.rotation;
+            leftSideObj.transform.localScale = victim.transform.localScale;
             leftSideObj.GetComponent<MeshFilter>().mesh = left_HalfMesh;
             leftSideObj.GetComponent<MeshCollider>().sharedMesh = left_HalfMesh;  //Test this....
             leftSideObj.GetComponent<MeshCollider>().convex = true; //Test this....
 
-            GameObject rightSideObj = new GameObject(victim.name + "..l R.Side", typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
+            GameObject rightSideObj = new GameObject(victim.name + ".. R.Side", typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
 			rightSideObj.transform.position = victim.transform.position;
 			rightSideObj.transform.rotation = victim.transform.rotation;
+            rightSideObj.transform.localScale = victim.transform.localScale;
 			rightSideObj.GetComponent<MeshFilter>().mesh = right_HalfMesh;
             rightSideObj.GetComponent<MeshCollider>().sharedMesh = right_HalfMesh;  //Test this....
             rightSideObj.GetComponent<MeshCollider>().convex = true; //Test this....
@@ -174,15 +176,11 @@ namespace BLINDED_AM_ME{
 				rightSideObj.transform.parent = victim.transform.parent;
 			}
 
-			rightSideObj.transform.localScale = victim.transform.localScale;
-
-
 			// assign mats
 			leftSideObj.GetComponent<MeshRenderer>().materials = mats;
 			rightSideObj.GetComponent<MeshRenderer>().materials = mats;
 
 			return new GameObject[]{ leftSideObj, rightSideObj };
-
 		}
 
         #region Cutting
